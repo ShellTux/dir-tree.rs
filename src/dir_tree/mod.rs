@@ -2,8 +2,7 @@ use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
-    fs::{self, Metadata},
-    io,
+    fs, io,
     path::{Path, PathBuf},
 };
 
@@ -22,6 +21,9 @@ pub struct DirTree {
 }
 
 impl DirTree {
+    /// # Errors
+    ///
+    /// Will return `io::Error`.
     pub fn from<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         let mut tree = DirTree {
             files: HashSet::new(),
@@ -43,6 +45,7 @@ impl DirTree {
         Ok(tree)
     }
 
+    #[must_use]
     pub fn file_count(&self) -> usize {
         self.into_iter().count()
     }

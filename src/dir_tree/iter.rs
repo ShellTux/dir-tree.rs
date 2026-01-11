@@ -1,13 +1,13 @@
 use super::DirTree;
 use std::{collections::hash_set, path::PathBuf};
 
-pub struct DirTreeIter<'a> {
-    files_iter: hash_set::Iter<'a, PathBuf>,
-    stack_dirs_iter: Vec<DirTreeIter<'a>>,
+pub struct DirTreeIter<'dirtree> {
+    files_iter: hash_set::Iter<'dirtree, PathBuf>,
+    stack_dirs_iter: Vec<DirTreeIter<'dirtree>>,
 }
 
-impl<'a> Iterator for DirTreeIter<'a> {
-    type Item = &'a PathBuf;
+impl<'dirtree> Iterator for DirTreeIter<'dirtree> {
+    type Item = &'dirtree PathBuf;
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(file) = self.files_iter.next() {
