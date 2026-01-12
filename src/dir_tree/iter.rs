@@ -1,23 +1,24 @@
 use super::DirTree;
-use std::{collections::hash_set, path::PathBuf};
+use std::{collections::hash_set, ffi::OsString};
 
-pub struct DirTreeIter<'dirtree> {
-    files_iter: hash_set::Iter<'dirtree, PathBuf>,
-    stack_dirs_iter: Vec<DirTreeIter<'dirtree>>,
+pub struct DirTreeIter<'dirtree, T> {
+    files_iter: hash_set::Iter<'dirtree, T>,
+    stack_dirs_iter: Vec<DirTreeIter<'dirtree, T>>,
 }
 
-impl<'dirtree> Iterator for DirTreeIter<'dirtree> {
-    type Item = &'dirtree PathBuf;
+impl<'dirtree, T> Iterator for DirTreeIter<'dirtree, T> {
+    type Item = &'dirtree T;
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(file) = self.files_iter.next() {
             return Some(file);
         }
 
-        while let Some(mut dir_iter) = self.stack_dirs_iter.pop() {
-            if let Some(new_file) = dir_iter.next() {
-                self.stack_dirs_iter.push(dir_iter);
-                return Some(new_file);
+        while let Some(dir_tree) = self.stack_dirs_iter.last_mut() {
+            if let Some(file) = dir_tree.next() {
+                return Some(file);
+            } else {
+                self.stack_dirs_iter.pop();
             }
         }
 
@@ -26,8 +27,8 @@ impl<'dirtree> Iterator for DirTreeIter<'dirtree> {
 }
 
 impl<'a> IntoIterator for &'a DirTree {
-    type Item = &'a PathBuf;
-    type IntoIter = DirTreeIter<'a>;
+    type Item = &'a OsString;
+    type IntoIter = DirTreeIter<'a, OsString>;
 
     fn into_iter(self) -> Self::IntoIter {
         DirTreeIter {

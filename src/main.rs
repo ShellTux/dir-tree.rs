@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let dir_tree = DirTree::from(dir)?;
         println!("{dir_tree:#?}");
 
-        println!("json: {}", serde_json::to_string_pretty(&dir_tree)?);
+        println!("json: {}", serde_json::to_string(&dir_tree)?);
 
         for file in &dir_tree {
             println!("{}", file.display());
